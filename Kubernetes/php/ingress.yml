@@ -6,7 +6,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/load-balancer-name: blood-bank-alb
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:898855110204:certificate/f3492c91-8f2e-41a8-8d85-9ec41de7b2b7 
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:898855110204:certificate/f3492c91-8f2e-41a8-8d85-9ec41de7b2b1 
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=300
