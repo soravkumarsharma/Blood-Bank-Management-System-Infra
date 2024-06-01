@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata: 
+  name: blood-bank-git-generator
+  namespace: argocd
+  labels:
+    app: blood-bank
+    app.kubernetes.io/name: blood-bank
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/soravkumarsharma/Blood-Bank-Management-System-Infra.git
+      revision: main
+      directories:
+      - path: Kubernetes/*
+  template:
+    metadata:
+      name: '{{path.basename}}-application'
+    spec:
+      project: default 
+      source: 
+        repoURL: https://github.com/soravkumarsharma/Blood-Bank-Management-System-Infra.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc 
+        namespace: default 
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true 
+        syncOptions:
+        - CreateNamespace=true
+        - ApplyOutOfSyncOnly=true 
