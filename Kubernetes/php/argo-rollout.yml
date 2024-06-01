@@ -36,7 +36,7 @@ spec:
           mountPath: /mnt
       containers:
       - name: blood-bank-frontend
-        image: soravkumarsharma/blood-bank-frontend:892df5a
+        image: soravkumarsharma/blood-bank-frontend:d956cea
         ports:
         - containerPort: 80
         imagePullPolicy: Always 
