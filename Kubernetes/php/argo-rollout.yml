@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata: 
+  name: blood-bank-frontend 
+  labels: 
+    app: php 
+    app.kubernetes.io/name: php
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 40
+      - pause: { duration: 10s }
+      - setWeight: 60
+      - pause: { duration: 20s }
+      - setWeight: 80
+      - pause: { duration: 40s}
+  selector: 
+    matchLabels:
+      app: php 
+  template: 
+    metadata:
+      labels:
+        app: php
+        app.kubernetes.io/name: php 
+    spec:
+      initContainers:
+      - name: init-permissions
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /mnt/donor_image /mnt/request_image && chmod -R 777 /mnt/donor_image /mnt/request_image"]
+        volumeMounts:
+        - name: efs-volume
+          mountPath: /mnt
+      containers:
+      - name: blood-bank-frontend
+        image: soravkumarsharma/blood-bank-frontend:latest
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always 
+        env: 
+        - name: MYSQL_HOST
+          value: 'mysql-headless-svc.default.svc.cluster.local'
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ROOT_PASSWORD
+              name: mysql-secret
+        volumeMounts:
+        - name: efs-volume
+          mountPath: /var/www/html/donor_image
+          subPath: donor_image
+        - name: efs-volume
+          mountPath: /var/www/html/request_image
+          subPath: request_image
+      volumes:
+      - name: efs-volume
+        persistentVolumeClaim:
+          claimName: efs-pvc
+
+  

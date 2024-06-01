@@ -1,0 +1,12 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: mysql-configmap
+  labels: 
+    app: mysql 
+    app.kubernetes.io/name: mysql 
+data: 
+  mysql.cnf: |
+    [mysqld]
+    default_time_zone = '+05:30'
+    sql_mode = "NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_VALUE_ON_ZERO"

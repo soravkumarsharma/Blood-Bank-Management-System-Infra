@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    app.kubernetes.io/name: mysql
+spec:
+  replicas: 1
+  serviceName: mysql-headless-svc
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+        app.kubernetes.io/name: mysql
+        replicaset: rs0.main
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: replicaset
+                      operator: In
+                      values:
+                        - rs0.main
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mysql 
+        image: mysql:8.4.0
+        ports:
+        - name: mysql 
+          protocol: TCP 
+          containerPort: 3306 
+        env: 
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ROOT_PASSWORD
+              name: mysql-secret
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb 
+          mountPath: /docker-entrypoint-initdb.d
+        - name: mysql-config
+          mountPath: /etc/mysql/conf.d
+      volumes:
+        - name: mysql-initdb 
+          configMap:
+            name: mysql-initdb-config
+        - name: mysql-config
+          configMap:
+            name: mysql-configmap
+  volumeClaimTemplates:
+  - metadata:
+      name: data 
+    spec:
+      storageClassName: gp2
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 0.5Gi
