@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blood-bank-phpmyadmin 
+  labels: 
+    app: phpmyadmin
+    app.kubernetes.io/name: phpmyadmin
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - name: phpmyadmin-cont 
+        image: phpmyadmin:apache
+        ports:
+        - containerPort: 80
+        env:
+        - name: PMA_HOST
+          value: 'mysql-headless-svc.default.svc.cluster.local'
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: ROOT_PASSWORD
+              name: mysql-secret
+        - name: PMA_PORT
+          value: '3306'
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpmyadmin-lb
+  labels:
+    app: phpMyAdmin
+    app.kubernetes.io/name: phpmyadmin
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+  selector:
+    app: phpmyadmin
+
+... 
